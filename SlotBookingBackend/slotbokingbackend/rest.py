@@ -106,10 +106,22 @@ def select_seats():
 
     # Insert the selected seats into the database
     for seat in selected_seats:
-        cursor.execute("INSERT INTO parking_slot (parking_slot_id,rowI, colI) VALUES (1,%s, %s)", (seat['rowI'], seat['colI']))
+        cursor.execute("INSERT INTO parking_slot (rowI, colI) VALUES (%s, %s)", (seat['rowI'], seat['colI']))
     db_connection.commit()
 
     return jsonify({'message': 'Seats selected successfully'}), 200
+
+# Get selected seats route
+@app.route('/get-selected-seats', methods=['GET'])
+def get_selected_seats():
+    if 'phonenumber' not in session:
+        return jsonify({'message': 'Not logged in'}), 401
+
+    # Retrieve the selected seats from the database
+    cursor.execute("SELECT rowI, colI FROM parking_slot")
+    selected_seats = cursor.fetchall()
+
+    return jsonify({'selected_seats': selected_seats}), 200
 
 # Razorpay payment gateway configuration
 razorpay_client = razorpay.Client(auth=('rzp_test_QU92zSHk7fBUv1', 'kJr2zUSXVLOBgvS43fw77z1C'))
